@@ -99,6 +99,76 @@ The **World Wide Web** is a highly popular distributed application[cite: 5]. The
 * HTTP is a **stateless protocol**[cite: 7]. This means the server maintains no information about past client requests[cite: 7]. This design simplifies server implementation and allows servers to handle many simultaneous connections[cite: 7].
 * HTTP uses **TCP** as its underlying transport protocol[cite: 6]. The client first initiates a TCP connection to the server[cite: 6].
 
+#### **2.2.1.1 HTTP Message Format**
+
+HTTP messages are in human-readable ASCII format and consist of two types: **request messages** and **response messages**.
+
+**HTTP Request Message Format:**
+```
+Request line (method, URL, version)
+Header lines
+\r\n (blank line)
+Entity body (optional)
+```
+
+**Example HTTP Request:**
+```http
+GET /index.html HTTP/1.1
+Host: www.example.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+Accept: text/html,application/xhtml+xml,application/xml
+Accept-Language: en-US,en;q=0.9
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+```
+
+**HTTP Response Message Format:**
+```
+Status line (version, status code, status phrase)
+Header lines
+\r\n (blank line)
+Entity body
+```
+
+**Example HTTP Response:**
+```http
+HTTP/1.1 200 OK
+Date: Mon, 27 Jul 2009 12:28:53 GMT
+Server: Apache/2.2.14 (Win32)
+Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
+Content-Length: 88
+Content-Type: text/html
+Connection: Closed
+
+<html>
+<body>
+<h1>Hello World!</h1>
+</body>
+</html>
+```
+
+**Common HTTP Request Methods:**
+* **GET:** Requests a resource from the server
+* **POST:** Submits data to be processed by the server
+* **PUT:** Uploads a resource to the server
+* **DELETE:** Deletes a resource from the server
+* **HEAD:** Requests only the headers (no body) of a resource
+
+**Common HTTP Status Codes:**
+* **200 OK:** Request succeeded
+* **301 Moved Permanently:** Resource has been permanently moved
+* **400 Bad Request:** Request syntax is malformed
+* **404 Not Found:** Requested resource does not exist
+* **505 HTTP Version Not Supported:** Server doesn't support the HTTP version
+
+**Important HTTP Headers:**
+* **Host:** Specifies the host and port number of the server
+* **User-Agent:** Identifies the client software
+* **Accept:** Specifies media types acceptable for the response
+* **Content-Type:** Indicates the media type of the entity body
+* **Content-Length:** Indicates the size of the entity body in bytes
+* **Connection:** Controls whether the connection stays open after the transaction
+
 #### **2.2.2 Non-Persistent and Persistent Connections**
 
 * **Non-Persistent Connections:**
@@ -150,6 +220,72 @@ The **World Wide Web** is a highly popular distributed application[cite: 5]. The
     5.  The server uses the ID to retrieve the user's information from its database, effectively tracking the user's state across sessions[cite: 9].
 
 ***
+
+### **2.3 Email and Simple Mail Transfer Protocol (SMTP)**
+
+SMTP is the application-layer protocol for electronic mail. It is used to transfer email from a sender's mail server to a receiver's mail server. It is also used to transfer mail from a sender's host to the sender's mail server.
+
+* **Core Components:** The email system consists of three main components:
+    1.  **User Agents:** These are the clients for reading and composing emails (e.g., Gmail, Outlook).
+    2.  **Mail Servers:** These servers store mailboxes for users and also act as SMTP clients and servers to send and receive messages.
+    3.  **SMTP:** The protocol that transfers messages between mail servers.
+* **Protocol Overview:**
+    * SMTP uses a **persistent TCP connection** to transfer messages reliably.
+    * It is a **push protocol**; the sending mail server pushes the email to the receiving mail server.
+    * It operates in two phases: the **handshaking phase**, where the sender and receiver introduce themselves, and the **transfer phase**, where the message content is sent.
+    * SMTP uses ASCII commands and responses. The commands are sent by the SMTP client (sender's mail server) to the SMTP server (receiver's mail server). The server replies with a status code and an optional message.
+* **How it Works (Example):**
+    1.  A user runs a user agent (e.g., Outlook) and composes an email to `johndoe@university.edu`.
+    2.  The user agent sends the message to the user's mail server (e.g., a server at their ISP).
+    3.  The user's mail server acts as the SMTP client and initiates a TCP connection to the destination mail server (the server for `university.edu`).
+    4.  The two servers engage in an SMTP handshaking process, including the `HELO` and `MAIL FROM` commands from the client, and `220` and `250 OK` responses from the server.
+    5.  The client sends the body of the message using the `DATA` command.
+    6.  The server receives the message and stores it in John Doe's mailbox.
+    7.  John Doe uses his user agent to retrieve the message from the mail server. This is typically done using a different protocol, such as IMAP or POP3.
+
+#### **2.3.1 Mail Access Protocols: IMAP vs POP3**
+
+While SMTP is used for sending email, users need different protocols to retrieve their email from mail servers. The two primary mail access protocols are **IMAP** and **POP3**.
+
+| **Aspect** | **IMAP (Internet Message Access Protocol)** | **POP3 (Post Office Protocol v3)** |
+|---|---|---|
+| **Storage Model** | Messages remain on server | Messages downloaded to client |
+| **Multi-device Access** | Excellent - sync across all devices | Poor - messages tied to one device |
+| **Offline Access** | Limited - requires server connection | Full - all messages stored locally |
+| **Storage Management** | Server manages storage | Client manages local storage |
+| **Bandwidth Usage** | Higher - frequent server communication | Lower - one-time download |
+| **Default Port** | 143 (unencrypted), 993 (SSL/TLS) | 110 (unencrypted), 995 (SSL/TLS) |
+| **Folder Support** | Full server-side folder management | Limited folder support |
+| **Search Capabilities** | Server-side search (faster for large mailboxes) | Client-side search only |
+| **Backup** | Server handles backup | User responsible for backup |
+| **Security** | Messages remain centrally managed | Local storage security risks |
+| **Best Use Case** | Multiple devices, shared access | Single device, limited server storage |
+
+***
+
+### **File Transfer Protocol (FTP)**
+
+FTP is the application-layer protocol used to transfer files to and from a remote host. It is built on a client-server architecture.
+
+* **Key Features:**
+    * FTP uses two parallel **TCP connections** to transfer a file:
+        * **Control Connection:** This connection is used for sending control information, such as user identification, passwords, and commands to change directories. It is established first and remains open for the entire duration of the session.
+        * **Data Connection:** This connection is used for the actual file transfer. A new data connection is opened for each file transferred and is closed after the file transfer is complete.
+    * Because the control and data connections are separate, FTP is said to be an **out-of-band** protocol (control commands are sent in a separate connection from data).
+* **Protocol Overview:**
+    * The FTP client contacts the FTP server on port 21.
+    * The client uses a simple command language over the control connection, such as `list` (to request a list of files in the current directory) and `retr` (to retrieve a file).
+    * When a file transfer is requested, the client or server creates a new data connection on a different port.
+    * After the file is transferred, the data connection is closed, but the control connection remains open for further commands.
+* **How it Works (Example):**
+    1.  A user invokes an FTP client, which initiates a control TCP connection with the FTP server on port 21.
+    2.  The user sends login credentials over this connection.
+    3.  The user issues a command, for example, `list` to see the files on the server.
+    4.  The server opens a new TCP connection (the data connection) to send the file list back to the client.
+    5.  The user issues a command to retrieve a file, `retr filename`.
+    6.  The server opens a new data connection to transfer the file's contents.
+    7.  The file is transferred, and the data connection is closed.
+    8.  The control connection remains open until the user issues a `quit` command, at which point both connections are closed.
 
 ### **2.4 DNS - The Internet’s Directory Service**
 
